@@ -5,7 +5,11 @@ import pandas as pd
 import requests
 from cache import medical_fields
 from flask import Flask, request, jsonify
-api_url = "http://127.0.0.1:8000/api/v1/hospitals"
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+api_url = os.getenv("API_URL")
 app = Flask(__name__)
 response = requests.get(api_url)
 if response.status_code == 200:
