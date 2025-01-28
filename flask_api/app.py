@@ -75,4 +75,6 @@ def recommend():
   else:
     return jsonify({"message": "Failed to fetch data. Please try again later."}), 500
 if __name__ == '__main__':
-  app.run(debug=True)
+  host = os.getenv('HOST', '0.0.0.0')
+  port = int(os.getenv('PORT', 5000))
+  app.run(host=host, port=port)
