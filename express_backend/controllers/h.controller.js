@@ -1,22 +1,41 @@
 import { Hospital } from "../model/hospital.model.js";
 import { asyncHandler } from "../util/asyncHandler.js";
+import mongoose from "mongoose";
 
 const addHospital = asyncHandler(async (req, res) => {
-  const newHospital = new Hospital({
-    ...req.body,
-    Reviews: [],
-    PatientRating: 0,
-  });
+  try {
+    const rootUserId = new mongoose.Types.ObjectId(req.body.FirstRootUser);
 
-  const savedHospital = await newHospital.save();
+    const rootUsers = [rootUserId];
 
-  res.status(201).json({
-    success: true,
-    message: "Hospital added successfully",
-    data: savedHospital,
-  });
+    const staff = req.body.Participants?.Staff || [];
+    const doctors = req.body.Participants?.Doctors || [];
+    const newHospital = new Hospital({
+      ...req.body,
+      FirstRootUser: rootUserId, 
+      Participants: {
+        RootUsers: rootUsers, 
+        Staff: staff, 
+        Doctors: doctors, 
+      },
+      Reviews: [],
+      PatientRating: 0,
+    });
+    const savedHospital = await newHospital.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Hospital added successfully",
+      data: savedHospital,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Error adding hospital",
+      error: error.message,
+    });
+  }
 });
-
 
 const getHospital=asyncHandler(async(req,res)=>{
   const hospital=await Hospital.findById(req.params.hospitalId);
@@ -97,10 +116,23 @@ const editHospital = asyncHandler(async (req, res) => {
   const { hospitalId } = req.params;
   const updates = req.body;
 
+  // Check if the hospital exists
   const hospital = await Hospital.findById(hospitalId);
   if (!hospital) {
     res.status(404);
     throw new Error("Hospital not found");
+  }
+
+  if (updates.Participants) {
+    if (updates.Participants.RootUsers) {
+      updates.Participants.RootUsers = updates.Participants.RootUsers.map(id => new mongoose.Types.ObjectId(id));
+    }
+    if (updates.Participants.Doctors) {
+      updates.Participants.Doctors = updates.Participants.Doctors.map(id => new mongoose.Types.ObjectId(id));
+    }
+    if (updates.Participants.Patients) {
+      updates.Participants.Patients = updates.Participants.Patients.map(id => new mongoose.Types.ObjectId(id));
+    }
   }
 
   Object.assign(hospital, updates);
