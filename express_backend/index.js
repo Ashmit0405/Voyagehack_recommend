@@ -17,4 +17,3 @@ connectDB()
 .catch((error)=>{
     console.log("Connection error: ",error);
 })
-router

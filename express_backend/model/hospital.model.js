@@ -66,6 +66,12 @@ const OnSiteVerificationSchema = new mongoose.Schema({
   VerificationContact: VerificationContactSchema,
 });
 
+const ParticipantsSchema = new mongoose.Schema({
+  RootUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  Staff: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Staff', default:[] }],
+  Doctors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', default:[] }],
+});
+
 const HospitalSchema = new mongoose.Schema({
   BasicInfo: {
     HospitalName: { type: String, required: true },
@@ -81,6 +87,8 @@ const HospitalSchema = new mongoose.Schema({
   Reviews: { type: [String], default: [] },
   PatientRating: { type: Number, default: 0 },
   Ratings: { type: [Number], default: [] },
+  ConsultationFee: { type: Number, default: 0.0 },
+  Participants: ParticipantsSchema,
 });
 
 export const Hospital = mongoose.model('Hospital', HospitalSchema);

@@ -1,1 +1,1 @@
-export const DB_NAME="VoyageHack";
+export const DB_NAME="voyage2";

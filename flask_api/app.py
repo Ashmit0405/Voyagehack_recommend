@@ -34,14 +34,16 @@ def replace_with_field_name(text):
         if not matched:
             updated_words.append(word)
     return " ".join(updated_words)
-useful=data_df[['BasicInfo_HospitalName','_id','BasicInfo_RegistrationNumber','PatientRating','OnsiteRating','Amenities_Specialization','Amenities_Facilities','BasicInfo_AddressInformation','Reviews','Ratings']]
+useful=data_df[['BasicInfo_HospitalName','_id','BasicInfo_RegistrationNumber','PatientRating','OnsiteRating','Amenities_Specialization','Amenities_Facilities','BasicInfo_AddressInformation','Reviews','Ratings','ConsultationFee']]
 def preprocess(dataframe):
     dataframe['Facilities']= (dataframe['Amenities_Specialization'].apply(lambda x: ' '.join(x) if isinstance(x, list) else '') +
     ' ' +
     dataframe['Amenities_Facilities'].apply(lambda x: ' '.join(x) if isinstance(x, list) else '')+
     ' ' +
-    dataframe['Processed_Address'].apply(str) +' ')
-    dataframe=dataframe[['BasicInfo_HospitalName','_id','BasicInfo_RegistrationNumber','PatientRating','OnsiteRating','Facilities','Reviews','Ratings']]
+    dataframe['Processed_Address'].apply(str) +
+    ' '+
+    dataframe['ConsultationFee'].apply(str)+ ' ')
+    dataframe=dataframe[['BasicInfo_HospitalName','_id','BasicInfo_RegistrationNumber','PatientRating','OnsiteRating','Facilities','Reviews','Ratings','ConsultationFee']]
     return dataframe
 
 def process_address(address_list):
@@ -60,7 +62,7 @@ def get_similar_hospitals(user_prompt, dataframe):
     dataframe['SimilarityScore'] = similarity_scores
     sorted_hospitals = dataframe.sort_values(by='SimilarityScore', ascending=False)
 
-    return sorted_hospitals[['BasicInfo_HospitalName', '_id','SimilarityScore', 'Facilities','PatientRating','OnsiteRating','Ratings','Reviews']]
+    return sorted_hospitals[['BasicInfo_HospitalName', '_id','SimilarityScore', 'Facilities','PatientRating','OnsiteRating','Ratings','Reviews','ConsultationFee']]
 
 @app.route('/api/v1/recommendations', methods=['POST'])
 def recommend():
