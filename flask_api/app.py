@@ -19,7 +19,6 @@ if response.status_code == 200:
     data = response.json()
     df = pd.DataFrame(data)
     data_df = pd.json_normalize(df["data"], sep="_")
-    print(data_df.columns.tolist())
 
 else:
     print(f"Failed to fetch data. Status code: {response.status_code}")
@@ -39,14 +38,6 @@ def replace_with_field_name(text):
             updated_words.append(word)
     return " ".join(updated_words)
 
-useful = data_df[['BasicInfo_HospitalName', '_id', 'BasicInfo_RegistrationNumber', 
-    'PatientRating', 'OnsiteRating','Amenities_Specialization', 'Amenities_Facilities',
-    'BasicInfo_AddressInformation_StreetAddress', 
-    'BasicInfo_AddressInformation_City', 
-    'BasicInfo_AddressInformation_State', 
-    'BasicInfo_AddressInformation_PinCode',
-    'Reviews', 'Ratings', 'ConsultationFee']]
-
 def preprocess(dataframe):
     dataframe['Facilities'] = (
         dataframe['Amenities_Specialization'].apply(lambda x: ' '.join(x) if isinstance(x, list) else '') +
@@ -57,8 +48,6 @@ def preprocess(dataframe):
         ' ' +
         dataframe['ConsultationFee'].apply(str) + ' '
     )
-    dataframe = dataframe[['BasicInfo_HospitalName', '_id', 'BasicInfo_RegistrationNumber',
-                           'PatientRating', 'OnsiteRating', 'Facilities', 'Reviews', 'Ratings', 'ConsultationFee']]
     return dataframe
 
 def process_address(address_object):
@@ -67,13 +56,13 @@ def process_address(address_object):
         return " ".join(cleaned_address.values())
     return ''
 
-useful['Processed_Address'] = useful.apply(lambda row: process_address({
+data_df['Processed_Address'] = data_df.apply(lambda row: process_address({
     'StreetAddress': row['BasicInfo_AddressInformation_StreetAddress'],
     'City': row['BasicInfo_AddressInformation_City'],
     'State': row['BasicInfo_AddressInformation_State'],
     'PinCode': row['BasicInfo_AddressInformation_PinCode']
 }), axis=1)
-print(useful)
+
 def get_similar_hospitals(user_prompt, dataframe):
     all_texts = dataframe['Facilities'].tolist() + [user_prompt]
     vectorizer = TfidfVectorizer()
@@ -81,8 +70,7 @@ def get_similar_hospitals(user_prompt, dataframe):
     similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1]).flatten()
     dataframe['SimilarityScore'] = similarity_scores
     sorted_hospitals = dataframe.sort_values(by='SimilarityScore', ascending=False)
-    return sorted_hospitals[['BasicInfo_HospitalName', '_id', 'SimilarityScore',
-                              'Facilities', 'PatientRating', 'OnsiteRating', 'Ratings', 'Reviews', 'ConsultationFee']]
+    return sorted_hospitals
 
 @app.route('/api/v1/recommendations', methods=['POST'])
 def recommend():
@@ -90,9 +78,7 @@ def recommend():
     if response.status_code == 200:
         if user_prompt:
             user_prompt = replace_with_field_name(user_prompt)
-            print(user_prompt)
-            sorted_hospitals = get_similar_hospitals(user_prompt, preprocess(useful))
-            print(sorted_hospitals)
+            sorted_hospitals = get_similar_hospitals(user_prompt, preprocess(data_df))
             return jsonify(sorted_hospitals.to_dict(orient='records'))
         else:
             return jsonify({"message": "Please provide a user prompt."}), 400
@@ -102,4 +88,4 @@ def recommend():
 if __name__ == '__main__':
     host = os.getenv('HOST', '0.0.0.0')
     port = int(os.getenv('PORT', 5000))
-    app.run(host=host, port=5000)
+    app.run(host=host, port=5000,debug=True)
