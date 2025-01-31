@@ -70,6 +70,7 @@ def get_similar_hospitals(user_prompt, dataframe):
     similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1]).flatten()
     dataframe['SimilarityScore'] = similarity_scores
     sorted_hospitals = dataframe.sort_values(by='SimilarityScore', ascending=False)
+    sorted_hospitals=sorted_hospitals[['BasicInfo_HospitalName','BasicInfo_AddressInformation_StreetAddress','BasicInfo_AddressInformation_City','BasicInfo_AddressInformation_State','BasicInfo_AddressInformation_PinCode','ConsultationFee','SimilarityScore','Amenities_Specialization','Amenities_Facilities','OnsiteRating','PatientRating','Ratings','Reviews','Media_FrontUrl','Media_ReceptionUrl','_id']]
     return sorted_hospitals
 
 @app.route('/api/v1/recommendations', methods=['POST'])
