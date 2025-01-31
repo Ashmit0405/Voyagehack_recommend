@@ -7,20 +7,19 @@ const addHospital = asyncHandler(async (req, res) => {
     const rootUserId = new mongoose.Types.ObjectId(req.body.FirstRootUser);
 
     const rootUsers = [rootUserId];
+    const participants = req.body.Participants || {
+      RootUsers: rootUsers,
+      Staff: [],
+      Doctors: [],
+    };
 
-    const staff = req.body.Participants?.Staff || [];
-    const doctors = req.body.Participants?.Doctors || [];
     const newHospital = new Hospital({
       ...req.body,
-      FirstRootUser: rootUserId, 
-      Participants: {
-        RootUsers: rootUsers, 
-        Staff: staff, 
-        Doctors: doctors, 
-      },
+      Participants: participants,
       Reviews: [],
       PatientRating: 0,
     });
+
     const savedHospital = await newHospital.save();
 
     res.status(201).json({
@@ -36,6 +35,7 @@ const addHospital = asyncHandler(async (req, res) => {
     });
   }
 });
+
 
 const getHospital=asyncHandler(async(req,res)=>{
   const hospital=await Hospital.findById(req.params.hospitalId);
