@@ -61,8 +61,8 @@ const VerificationContactSchema = new mongoose.Schema({
 });
 
 const OnSiteVerificationSchema = new mongoose.Schema({
-  PreferredDate: { type: Date, required: true },
-  PreferredTime: { type: String, required: true },
+  PreferredDate: { type: Date, required: true, default: Date.now() },
+  PreferredTime: { type: String, required: true, default: '12:00 PM' },
   VerificationContact: VerificationContactSchema,
 });
 
@@ -76,14 +76,14 @@ const HospitalSchema = new mongoose.Schema({
   BasicInfo: {
     HospitalName: { type: String, required: true },
     RegistrationNumber: { type: String, required: true },
-    ContactInformation: [ContactInformationSchema],
-    AddressInformation: [AddressInformationSchema],
+    ContactInformation: ContactInformationSchema,
+    AddressInformation: AddressInformationSchema,
     OperatingHours: OperatingHoursSchema,
   },
-  Media: [MediaSchema],
+  Media: MediaSchema,
   Amenities: AmenitiesSchema,
   OnSiteVerification: OnSiteVerificationSchema,
-  OnsiteRating: { type: Number, default: 0, required: true },
+  OnsiteRating: { type: Number, default: 0},
   Reviews: { type: [String], default: [] },
   PatientRating: { type: Number, default: 0 },
   Ratings: { type: [Number], default: [] },
