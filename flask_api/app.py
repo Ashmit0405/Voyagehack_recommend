@@ -5,12 +5,14 @@ import pandas as pd
 import requests
 from cache import medical_fields
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 load_dotenv()
 
 api_url = os.getenv("API_URL")
 app = Flask(__name__)
+CORS(app)
 response = requests.get(api_url)
 if response.status_code == 200:
   data = response.json()
