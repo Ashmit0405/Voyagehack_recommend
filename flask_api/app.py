@@ -80,6 +80,7 @@ def recommend():
         if user_prompt:
             user_prompt = replace_with_field_name(user_prompt)
             sorted_hospitals = get_similar_hospitals(user_prompt, preprocess(data_df))
+            print(sorted_hospitals)
             return jsonify(sorted_hospitals.to_dict(orient='records'))
         else:
             return jsonify({"message": "Please provide a user prompt."}), 400
