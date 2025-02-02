@@ -72,6 +72,11 @@ const ParticipantsSchema = new mongoose.Schema({
   Doctors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', default:[] }],
 });
 
+const ReviewSchema = new mongoose.Schema({
+  Author: { type: mongoose.Schema.Types.ObjectId, required: true },
+  Content: { type: String, required: true },
+});
+
 const HospitalSchema = new mongoose.Schema({
   BasicInfo: {
     HospitalName: { type: String, required: true },
@@ -84,7 +89,7 @@ const HospitalSchema = new mongoose.Schema({
   Amenities: AmenitiesSchema,
   OnSiteVerification: OnSiteVerificationSchema,
   OnsiteRating: { type: Number, default: 0},
-  Reviews: { type: [String], default: [] },
+  Reviews: { type: [ReviewSchema], default: [] },
   PatientRating: { type: Number, default: 0 },
   Ratings: { type: [Number], default: [] },
   ConsultationFee: { type: Number, default: 0.0 },
